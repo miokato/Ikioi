@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		356F52BA2F9F4872003FC2C0 /* CLAUDE.md in Resources */ = {isa = PBXBuildFile; fileRef = 356F52B92F9F4872003FC2C0 /* CLAUDE.md */; };
+		356F52BC2F9F487A003FC2C0 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 356F52BB2F9F487A003FC2C0 /* README.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		95B37D422F9EE22100832213 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +29,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		356F52B92F9F4872003FC2C0 /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
+		356F52BB2F9F487A003FC2C0 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		95B37D342F9EE22000832213 /* Ikioi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ikioi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		95B37D412F9EE22100832213 /* IkioiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IkioiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		95B37D4B2F9EE22100832213 /* IkioiUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IkioiUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -79,6 +86,8 @@
 				95B37D442F9EE22100832213 /* IkioiTests */,
 				95B37D4E2F9EE22100832213 /* IkioiUITests */,
 				95B37D352F9EE22000832213 /* Products */,
+				356F52B92F9F4872003FC2C0 /* CLAUDE.md */,
+				356F52BB2F9F487A003FC2C0 /* README.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -212,6 +221,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				356F52BC2F9F487A003FC2C0 /* README.md in Resources */,
+				356F52BA2F9F4872003FC2C0 /* CLAUDE.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
