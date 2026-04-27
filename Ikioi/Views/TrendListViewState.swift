@@ -50,4 +50,8 @@ final class TrendListViewState {
             phase = .failed(String(describing: error))
         }
     }
+
+    func makeDetailState(for article: TrendArticle) -> ArticleDetailViewState {
+        ArticleDetailViewState(article: article, country: country, client: client)
+    }
 }

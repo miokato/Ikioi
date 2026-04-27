@@ -95,4 +95,59 @@ struct WikipediaAPIClientTests {
         )
         #expect(MockURLProtocol.lastRequest?.value(forHTTPHeaderField: "User-Agent") == "TestAgent/9.9")
     }
+
+    private static let summaryJSON = """
+    {
+      "title": "大谷翔平",
+      "extract": "日本のプロ野球選手。",
+      "thumbnail": { "source": "https://upload.wikimedia.org/photo.jpg", "width": 320, "height": 240 },
+      "content_urls": { "desktop": { "page": "https://ja.wikipedia.org/wiki/%E5%A4%A7%E8%B0%B7%E7%BF%94%E5%B9%B3" } },
+      "description": "プロ野球選手"
+    }
+    """.data(using: .utf8)!
+
+    @Test func fetchSummaryDecodesResponse() async throws {
+        let session = MockURLProtocol.makeSession(statusCode: 200, body: Self.summaryJSON)
+        let client = LiveWikipediaAPIClient(session: session)
+        let summary = try await client.fetchSummary(languageCode: "ja", rawTitle: "大谷翔平")
+        #expect(summary.extract == "日本のプロ野球選手。")
+        #expect(summary.thumbnailURL?.absoluteString == "https://upload.wikimedia.org/photo.jpg")
+        #expect(summary.description == "プロ野球選手")
+    }
+
+    @Test func fetchSummaryEncodesJapaneseTitleInPath() async throws {
+        let session = MockURLProtocol.makeSession(statusCode: 200, body: Self.summaryJSON)
+        let client = LiveWikipediaAPIClient(session: session)
+        _ = try await client.fetchSummary(languageCode: "ja", rawTitle: "大谷翔平")
+        let urlString = MockURLProtocol.lastRequest?.url?.absoluteString ?? ""
+        #expect(urlString == "https://ja.wikipedia.org/api/rest_v1/page/summary/%E5%A4%A7%E8%B0%B7%E7%BF%94%E5%B9%B3")
+    }
+
+    @Test func fetchSummaryEncodesSlashInTitle() async throws {
+        let session = MockURLProtocol.makeSession(statusCode: 200, body: Self.summaryJSON)
+        let client = LiveWikipediaAPIClient(session: session)
+        _ = try await client.fetchSummary(languageCode: "en", rawTitle: "AC/DC")
+        let urlString = MockURLProtocol.lastRequest?.url?.absoluteString ?? ""
+        #expect(urlString == "https://en.wikipedia.org/api/rest_v1/page/summary/AC%2FDC")
+    }
+
+    @Test func fetchSummaryHttpErrorIsThrown() async {
+        let session = MockURLProtocol.makeSession(statusCode: 404, body: Data())
+        let client = LiveWikipediaAPIClient(session: session)
+        do {
+            _ = try await client.fetchSummary(languageCode: "ja", rawTitle: "存在しない")
+            Issue.record("expected error")
+        } catch let error as WikipediaAPIError {
+            #expect(error == .httpError(404))
+        } catch {
+            Issue.record("unexpected error: \(error)")
+        }
+    }
+
+    @Test func fetchSummarySendsUserAgent() async throws {
+        let session = MockURLProtocol.makeSession(statusCode: 200, body: Self.summaryJSON)
+        let client = LiveWikipediaAPIClient(session: session, userAgent: "TestAgent/9.9")
+        _ = try await client.fetchSummary(languageCode: "ja", rawTitle: "大谷翔平")
+        #expect(MockURLProtocol.lastRequest?.value(forHTTPHeaderField: "User-Agent") == "TestAgent/9.9")
+    }
 }

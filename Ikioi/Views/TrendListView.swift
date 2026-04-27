@@ -15,6 +15,9 @@ struct TrendListView: View {
                 .refreshable {
                     await state.load()
                 }
+                .navigationDestination(for: TrendArticle.self) { article in
+                    ArticleDetailView(state: state.makeDetailState(for: article))
+                }
         }
     }
 
@@ -28,7 +31,9 @@ struct TrendListView: View {
             ContentUnavailableView("記事がありません", systemImage: "tray")
         case .loaded(let articles):
             List(articles) { article in
-                row(for: article)
+                NavigationLink(value: article) {
+                    row(for: article)
+                }
             }
             .listStyle(.plain)
         case .failed(let message):
@@ -88,5 +93,14 @@ private struct PreviewWikipediaAPIClient: WikipediaAPIClient {
             TrendArticle(id: "桜", rank: 2, title: "桜", rawTitle: "桜", viewCount: 123456),
             TrendArticle(id: "東京_(架空のドラマ)", rank: 3, title: "東京 (架空のドラマ)", rawTitle: "東京_(架空のドラマ)", viewCount: 98765),
         ]
+    }
+
+    nonisolated func fetchSummary(languageCode: String, rawTitle: String) async throws -> ArticleSummary {
+        ArticleSummary(
+            extract: "プレビュー用本文",
+            thumbnailURL: nil,
+            pageURL: URL(string: "https://ja.wikipedia.org/wiki/Test")!,
+            description: "プレビュー説明"
+        )
     }
 }

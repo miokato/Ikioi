@@ -1,7 +1,7 @@
 # 国別「いま話題」ブラウザアプリ — 実装計画書
 
 > 実装計画書 / v1 (MVP) 仕様
-> 最終更新: 2026-04-27
+> 最終更新: 2026-04-27 (記事詳細遷移を NavigationStack 方式に変更)
 
 ---
 
@@ -61,15 +61,15 @@ Ikioi/
 │   ├── WikipediaAPIClient.swift      # API クライアント
 │   ├── TrendRepository.swift         # キャッシュ込みデータ取得
 │   └── ArticleFilter.swift           # ブラックリスト等のフィルタ
-├── ViewModels/
-│   ├── TrendListViewModel.swift
-│   └── ArticleDetailViewModel.swift
 ├── Views/
 │   ├── MainView.swift                # ルート: 国セレクタ + トレンドリスト
 │   ├── CountrySelectorView.swift     # 横スクロール国セレクタ
 │   ├── TrendListView.swift           # 記事カードリスト
+│   ├── TrendListViewState.swift      # トレンドリストのプレゼンテーション状態
 │   ├── TrendCardView.swift           # 個別カード
-│   ├── ArticleDetailSheet.swift      # 詳細シート
+│   ├── ArticleDetailView.swift       # 詳細画面 (NavigationStack の destination)
+│   ├── ArticleDetailViewState.swift  # 詳細画面のプレゼンテーション状態
+│   ├── SafariView.swift              # SFSafariViewController ラッパー
 │   ├── SettingsView.swift            # 設定画面
 │   └── Components/
 │       ├── FlagView.swift
@@ -270,7 +270,7 @@ v1 サポート対象。`Resources/Countries.json` に静的に持つ。
 
 **主要インタラクション:**
 - 国セレクタ: タップで切替 + 選択中の国を中央にスナップアニメーション
-- 記事カードタップ → `ArticleDetailSheet` を `.sheet` モーダルで開く
+- 記事カードタップ → `ArticleDetailView` を `NavigationStack` で push 遷移
 - 記事リストを **左右スワイプ** すると隣接する国へ遷移（重要）
 - Pull-to-refresh で再取得（同日でも再取得を許可）
 
@@ -287,9 +287,10 @@ v1 サポート対象。`Resources/Countries.json` に静的に持つ。
 
 タイトルと説明文は記事要約APIの遅延ロード結果を反映。要約取得前は `redacted(reason: .placeholder)` でスケルトン表示。
 
-### 7.4 ArticleDetailSheet
+### 7.4 ArticleDetailView
 
-`.sheet(isPresented:)` でボトムシート表示。
+`NavigationStack` の `navigationDestination(for: TrendArticle.self)` から push 遷移で表示する。
+`ScrollView` ベースの単一画面で、戻る操作は標準のナビゲーションバー（バックスワイプ含む）に任せる。
 
 レイアウト（上から）:
 1. サムネイル（フル幅、aspect-fit、最大高さ200pt）
@@ -301,19 +302,29 @@ v1 サポート対象。`Resources/Countries.json` に静的に持つ。
 7. 「シェア」ボタン（テキスト + iOS シェアシート）
 8. 下部に「Source: Wikipedia contributors / CC BY-SA」のクレジットと記事URL
 
-「Webで検索する」アクション:
+「Webで検索する」アクション: 外部 Safari を開く（`UIApplication.shared.open` 経由、SwiftUI では `openURL` 環境値を使う）。
+ユーザーがブラウザ上で次の検索や共有に進む可能性が高いため、敢えてアプリ内には閉じ込めない。
+
 ```swift
 var components = URLComponents(string: "https://www.google.com/search")!
-components.queryItems = [
-    URLQueryItem(name: "q", value: article.title)
-]
-
-if let url = components.url {
-    UIApplication.shared.open(url)
-}
+components.queryItems = [URLQueryItem(name: "q", value: article.title)]
+// openURL(components.url!)  ← @Environment(\.openURL) を使用
 ```
 
-「Wikipedia で読む」アクション: `SFSafariViewController` でアプリ内ブラウザ表示。
+「Wikipedia で読む」アクション: アプリ内 `SFSafariViewController` で表示する。
+画面内の単一記事を読む用途であり、アプリ内ブラウザの方が UX が良いため。実装は `Views/SafariView.swift` の
+`UIViewControllerRepresentable` ラッパーを `.sheet(item:)` で提示する（NavigationStack の同一スタック内で
+さらに push しないことで、ユーザーが Safari を閉じればすぐ詳細画面に戻れる）。
+
+```swift
+struct SafariView: UIViewControllerRepresentable {
+    let url: URL
+    func makeUIViewController(context: Context) -> SFSafariViewController {
+        SFSafariViewController(url: url)
+    }
+    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
+}
+```
 
 ### 7.5 SettingsView
 
@@ -423,10 +434,10 @@ UI文言の例:
 
 ### Phase 3: 詳細とアクション（Week 3-4）
 
-- [ ] `ArticleDetailSheet` 実装
+- [ ] `ArticleDetailView` 実装（NavigationStack push 遷移）
 - [ ] サムネイル非同期表示（`AsyncImage`）
-- [ ] Web検索ボタン（Safari起動）
-- [ ] Wikipedia ボタン（`SFSafariViewController`）
+- [ ] Web検索ボタン（外部 Safari 起動）
+- [ ] Wikipedia ボタン（`SFSafariViewController` でアプリ内表示）
 - [ ] シェア機能
 - [ ] Wikipedia contributors / CC BY-SA クレジット表示
 

@@ -2,6 +2,7 @@ import Foundation
 
 protocol WikipediaAPIClient: Sendable {
     func fetchTrending(project: String, date: Date) async throws -> [TrendArticle]
+    func fetchSummary(languageCode: String, rawTitle: String) async throws -> ArticleSummary
 }
 
 enum WikipediaAPIError: Error, Equatable {
@@ -13,6 +14,12 @@ enum WikipediaAPIError: Error, Equatable {
 struct LiveWikipediaAPIClient: WikipediaAPIClient {
     private let session: URLSession
     private let userAgent: String
+
+    private static let titleAllowedCharacters: CharacterSet = {
+        var allowed = CharacterSet.urlPathAllowed
+        allowed.remove(charactersIn: "/")
+        return allowed
+    }()
 
     init(session: URLSession = .shared, userAgent: String = "Ikioi/1.0 (contact@example.com)") {
         self.session = session
@@ -32,17 +39,7 @@ struct LiveWikipediaAPIClient: WikipediaAPIClient {
             throw WikipediaAPIError.invalidURL
         }
 
-        var request = URLRequest(url: url)
-        request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
-
-        let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw WikipediaAPIError.invalidResponse
-        }
-        guard (200..<300).contains(httpResponse.statusCode) else {
-            throw WikipediaAPIError.httpError(httpResponse.statusCode)
-        }
-
+        let data = try await get(url: url)
         let decoded = try JSONDecoder().decode(TrendingResponse.self, from: data)
         guard let firstItem = decoded.items.first else {
             return []
@@ -56,6 +53,35 @@ struct LiveWikipediaAPIClient: WikipediaAPIClient {
                 viewCount: article.views
             )
         }
+    }
+
+    nonisolated func fetchSummary(languageCode: String, rawTitle: String) async throws -> ArticleSummary {
+        guard let encodedTitle = rawTitle.addingPercentEncoding(
+            withAllowedCharacters: Self.titleAllowedCharacters
+        ) else {
+            throw WikipediaAPIError.invalidURL
+        }
+        let urlString = "https://\(languageCode).wikipedia.org/api/rest_v1/page/summary/\(encodedTitle)"
+        guard let url = URL(string: urlString) else {
+            throw WikipediaAPIError.invalidURL
+        }
+
+        let data = try await get(url: url)
+        return try JSONDecoder().decode(ArticleSummary.self, from: data)
+    }
+
+    private nonisolated func get(url: URL) async throws -> Data {
+        var request = URLRequest(url: url)
+        request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw WikipediaAPIError.invalidResponse
+        }
+        guard (200..<300).contains(httpResponse.statusCode) else {
+            throw WikipediaAPIError.httpError(httpResponse.statusCode)
+        }
+        return data
     }
 }
 
