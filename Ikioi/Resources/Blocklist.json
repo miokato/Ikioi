@@ -1,0 +1,9 @@
+{
+  "ja.wikipedia.org": ["メインページ", "特別:検索", "Wikipedia:メインページ"],
+  "en.wikipedia.org": ["Main_Page", "Special:Search", "Wikipedia:Main_Page"],
+  "de.wikipedia.org": ["Wikipedia:Hauptseite", "Spezial:Suche"],
+  "fr.wikipedia.org": ["Wikipédia:Accueil_principal", "Spécial:Recherche"],
+  "ko.wikipedia.org": ["위키백과:대문", "특수:검색"],
+  "ru.wikipedia.org": ["Заглавная_страница", "Служебная:Поиск"],
+  "es.wikipedia.org": ["Wikipedia:Portada", "Especial:Buscar"]
+}

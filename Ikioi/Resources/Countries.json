@@ -1,0 +1,20 @@
+[
+  {"id":"JP","nameKey":"country.JP","wikipediaProject":"ja.wikipedia.org","languageCode":"ja","flagEmoji":"🇯🇵","note":null},
+  {"id":"KR","nameKey":"country.KR","wikipediaProject":"ko.wikipedia.org","languageCode":"ko","flagEmoji":"🇰🇷","note":null},
+  {"id":"DE","nameKey":"country.DE","wikipediaProject":"de.wikipedia.org","languageCode":"de","flagEmoji":"🇩🇪","note":null},
+  {"id":"FR","nameKey":"country.FR","wikipediaProject":"fr.wikipedia.org","languageCode":"fr","flagEmoji":"🇫🇷","note":null},
+  {"id":"IT","nameKey":"country.IT","wikipediaProject":"it.wikipedia.org","languageCode":"it","flagEmoji":"🇮🇹","note":null},
+  {"id":"RU","nameKey":"country.RU","wikipediaProject":"ru.wikipedia.org","languageCode":"ru","flagEmoji":"🇷🇺","note":null},
+  {"id":"TR","nameKey":"country.TR","wikipediaProject":"tr.wikipedia.org","languageCode":"tr","flagEmoji":"🇹🇷","note":null},
+  {"id":"PL","nameKey":"country.PL","wikipediaProject":"pl.wikipedia.org","languageCode":"pl","flagEmoji":"🇵🇱","note":null},
+  {"id":"NL","nameKey":"country.NL","wikipediaProject":"nl.wikipedia.org","languageCode":"nl","flagEmoji":"🇳🇱","note":null},
+  {"id":"SE","nameKey":"country.SE","wikipediaProject":"sv.wikipedia.org","languageCode":"sv","flagEmoji":"🇸🇪","note":null},
+  {"id":"FI","nameKey":"country.FI","wikipediaProject":"fi.wikipedia.org","languageCode":"fi","flagEmoji":"🇫🇮","note":null},
+  {"id":"TH","nameKey":"country.TH","wikipediaProject":"th.wikipedia.org","languageCode":"th","flagEmoji":"🇹🇭","note":null},
+  {"id":"VN","nameKey":"country.VN","wikipediaProject":"vi.wikipedia.org","languageCode":"vi","flagEmoji":"🇻🇳","note":null},
+  {"id":"ID","nameKey":"country.ID","wikipediaProject":"id.wikipedia.org","languageCode":"id","flagEmoji":"🇮🇩","note":null},
+  {"id":"EN","nameKey":"country.EN","wikipediaProject":"en.wikipedia.org","languageCode":"en","flagEmoji":"🌐","note":"country.EN.note"},
+  {"id":"ES","nameKey":"country.ES","wikipediaProject":"es.wikipedia.org","languageCode":"es","flagEmoji":"🌐","note":"country.ES.note"},
+  {"id":"BR","nameKey":"country.BR","wikipediaProject":"pt.wikipedia.org","languageCode":"pt","flagEmoji":"🇧🇷","note":"country.BR.note"},
+  {"id":"SA","nameKey":"country.SA","wikipediaProject":"ar.wikipedia.org","languageCode":"ar","flagEmoji":"🌐","note":"country.SA.note"}
+]
