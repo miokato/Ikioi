@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ArticleDetailView: View {
-    @State var state: ArticleDetailViewState
+    @Environment(\.articleDetailViewState) private var state
     @State private var safariURL: SafariURL?
     @Environment(\.openURL) private var openURL
 
@@ -130,33 +130,7 @@ private struct SafariURL: Identifiable {
 
 #Preview {
     NavigationStack {
-        ArticleDetailView(
-            state: ArticleDetailViewState(
-                article: TrendArticle(
-                    id: "大谷翔平",
-                    rank: 1,
-                    title: "大谷翔平",
-                    rawTitle: "大谷翔平",
-                    viewCount: 234567
-                ),
-                country: .fallbackJapan,
-                client: PreviewArticleSummaryClient()
-            )
-        )
-    }
-}
-
-private struct PreviewArticleSummaryClient: WikipediaAPIClient {
-    nonisolated func fetchTrending(project: String, date: Date) async throws -> [TrendArticle] {
-        []
-    }
-
-    nonisolated func fetchSummary(languageCode: String, rawTitle: String) async throws -> ArticleSummary {
-        ArticleSummary(
-            extract: "プレビュー用の本文。これはWikipedia要約のサンプルテキストです。",
-            thumbnailURL: nil,
-            pageURL: URL(string: "https://ja.wikipedia.org/wiki/Test")!,
-            description: "サンプル説明"
-        )
+        ArticleDetailView()
+            .environment(\.articleDetailViewState, ArticleDetailViewStateMock())
     }
 }

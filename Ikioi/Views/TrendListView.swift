@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct TrendListView: View {
-    @State var state: TrendListViewState
+    @Environment(\.trendListViewState) private var state
+    @Environment(\.articleDetailViewStateFactory) private var detailFactory
 
     var body: some View {
         NavigationStack {
@@ -16,7 +17,11 @@ struct TrendListView: View {
                     await state.load()
                 }
                 .navigationDestination(for: TrendArticle.self) { article in
-                    ArticleDetailView(state: state.makeDetailState(for: article))
+                    ArticleDetailViewContainer(
+                        factory: detailFactory,
+                        article: article,
+                        country: state.country
+                    )
                 }
         }
     }
@@ -76,31 +81,25 @@ struct TrendListView: View {
     }
 }
 
-#Preview {
-    TrendListView(
-        state: TrendListViewState(
-            country: .fallbackJapan,
-            client: PreviewWikipediaAPIClient(),
-            filter: ArticleFilter(blocklist: [:])
-        )
-    )
+private struct ArticleDetailViewContainer: View {
+    @State private var detailState: any ArticleDetailViewStateProtocol
+
+    init(
+        factory: any ArticleDetailViewStateFactoryProtocol,
+        article: TrendArticle,
+        country: Country
+    ) {
+        _detailState = State(initialValue: factory.make(article: article, country: country))
+    }
+
+    var body: some View {
+        ArticleDetailView()
+            .environment(\.articleDetailViewState, detailState)
+    }
 }
 
-private struct PreviewWikipediaAPIClient: WikipediaAPIClient {
-    nonisolated func fetchTrending(project: String, date: Date) async throws -> [TrendArticle] {
-        [
-            TrendArticle(id: "大谷翔平", rank: 1, title: "大谷翔平", rawTitle: "大谷翔平", viewCount: 234567),
-            TrendArticle(id: "桜", rank: 2, title: "桜", rawTitle: "桜", viewCount: 123456),
-            TrendArticle(id: "東京_(架空のドラマ)", rank: 3, title: "東京 (架空のドラマ)", rawTitle: "東京_(架空のドラマ)", viewCount: 98765),
-        ]
-    }
-
-    nonisolated func fetchSummary(languageCode: String, rawTitle: String) async throws -> ArticleSummary {
-        ArticleSummary(
-            extract: "プレビュー用本文",
-            thumbnailURL: nil,
-            pageURL: URL(string: "https://ja.wikipedia.org/wiki/Test")!,
-            description: "プレビュー説明"
-        )
-    }
+#Preview {
+    TrendListView()
+        .environment(\.trendListViewState, TrendListViewStateMock())
+        .environment(\.articleDetailViewStateFactory, ArticleDetailViewStateFactoryMock())
 }

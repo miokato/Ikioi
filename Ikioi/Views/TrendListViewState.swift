@@ -1,22 +1,45 @@
+import Foundation
 import SwiftUI
 import Observation
 
-protocol TrendListViewStateProtocol {
-    
+enum TrendListPhase {
+    case idle
+    case loading
+    case loaded([TrendArticle])
+    case failed(String)
 }
 
 @MainActor
+protocol TrendListViewStateProtocol: AnyObject, Observable {
+    var phase: TrendListPhase { get }
+    var country: Country { get }
+    func load() async
+}
+
+@MainActor
+@Observable
 final class TrendListViewStateMock: TrendListViewStateProtocol {
-    
+    var phase: TrendListPhase
+    let country: Country
+
+    init(
+        phase: TrendListPhase = .loaded(PreviewWikipediaAPIClient.defaultTrending),
+        country: Country = .fallbackJapan
+    ) {
+        self.phase = phase
+        self.country = country
+    }
+
+    func load() async {}
 }
 
 @MainActor
 struct TrendListViewStateKey: @preconcurrency EnvironmentKey {
-    static let defaultValue: TrendListViewStateProtocol = TrendListViewStateMock()
+    static let defaultValue: any TrendListViewStateProtocol = TrendListViewStateMock()
 }
 
 extension EnvironmentValues {
-    var trendListViewState: TrendListViewStateProtocol {
+    var trendListViewState: any TrendListViewStateProtocol {
         get { self[TrendListViewStateKey.self] }
         set { self[TrendListViewStateKey.self] = newValue }
     }
@@ -25,14 +48,7 @@ extension EnvironmentValues {
 @MainActor
 @Observable
 final class TrendListViewState: TrendListViewStateProtocol {
-    enum Phase {
-        case idle
-        case loading
-        case loaded([TrendArticle])
-        case failed(String)
-    }
-
-    private(set) var phase: Phase = .idle
+    private(set) var phase: TrendListPhase = .idle
     let country: Country
 
     private let client: WikipediaAPIClient
@@ -72,7 +88,7 @@ final class TrendListViewState: TrendListViewStateProtocol {
         }
     }
 
-    func makeDetailState(for article: TrendArticle) -> ArticleDetailViewState {
-        ArticleDetailViewState(article: article, country: country, client: client)
+    func load() async {
+        await load(now: .now)
     }
 }

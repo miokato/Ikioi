@@ -9,22 +9,27 @@ import SwiftUI
 
 @main
 struct IkioiApp: App {
-    @State private var rootState: TrendListViewState = IkioiApp.makeRootState()
+    @State private var rootState: TrendListViewState
+    @State private var detailFactory: ArticleDetailViewStateFactory
 
-    var body: some Scene {
-        WindowGroup {
-            TrendListView(state: rootState)
-        }
-    }
-
-    private static func makeRootState() -> TrendListViewState {
+    init() {
         let countries = (try? Country.loadFromBundle()) ?? []
         let japan = countries.first { $0.id == "JP" } ?? .fallbackJapan
         let filter = (try? ArticleFilter.loadFromBundle()) ?? ArticleFilter(blocklist: [:])
-        return TrendListViewState(
+        let client = LiveWikipediaAPIClient()
+        _rootState = State(initialValue: TrendListViewState(
             country: japan,
-            client: LiveWikipediaAPIClient(),
+            client: client,
             filter: filter
-        )
+        ))
+        _detailFactory = State(initialValue: ArticleDetailViewStateFactory(client: client))
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            TrendListView()
+                .environment(\.trendListViewState, rootState)
+                .environment(\.articleDetailViewStateFactory, detailFactory)
+        }
     }
 }
