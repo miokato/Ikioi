@@ -77,12 +77,24 @@ struct ArticleDetailView: View {
         }
     }
 
+    @ViewBuilder
     private var translationToggle: some View {
-        Button {
-            state.toggleTranslation()
-        } label: {
-            Image(systemName: state.isTranslationEnabled ? "character.bubble.fill" : "character.bubble")
+        if isTranslating {
+            ProgressView()
+                .controlSize(.small)
+        } else {
+            Button {
+                state.toggleTranslation()
+            } label: {
+                Image(systemName: state.isTranslationEnabled ? "character.bubble.fill" : "character.bubble")
+            }
         }
+    }
+
+    private var isTranslating: Bool {
+        guard state.isTranslationEnabled else { return false }
+        if case .loading = state.translation { return true }
+        return false
     }
 
     @ViewBuilder
