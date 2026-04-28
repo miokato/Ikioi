@@ -42,7 +42,7 @@ struct TrendListView: View {
                     }
                 }
                 .alert(
-                    "読み込みに失敗しました",
+                    "Failed to load",
                     isPresented: Binding(
                         get: { switchErrorMessage != nil },
                         set: { if !$0 { switchErrorMessage = nil } }
@@ -80,7 +80,7 @@ struct TrendListView: View {
     private var countryMenu: some View {
         Menu {
             Picker(
-                "国を選択",
+                "Choose a country",
                 selection: Binding(
                     get: { countryStore.selected },
                     set: { countryStore.select($0) }
@@ -101,10 +101,10 @@ struct TrendListView: View {
     private var content: some View {
         switch state.phase {
         case .idle, .loading:
-            ProgressView("読み込み中…")
+            ProgressView("Loading…")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         case .loaded(let articles) where articles.isEmpty:
-            ContentUnavailableView("記事がありません", systemImage: "tray")
+            ContentUnavailableView("No articles", systemImage: "tray")
         case .loaded(let articles):
             List(articles) { article in
                 NavigationLink(value: article) {
@@ -117,13 +117,13 @@ struct TrendListView: View {
                 Image(systemName: "exclamationmark.triangle")
                     .font(.largeTitle)
                     .foregroundStyle(.secondary)
-                Text("読み込みに失敗しました")
+                Text("Failed to load")
                     .font(.headline)
                 Text(message)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                Button("再試行") {
+                Button("Retry") {
                     Task { await state.load() }
                 }
                 .buttonStyle(.borderedProminent)

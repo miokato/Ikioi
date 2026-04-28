@@ -44,7 +44,7 @@ struct ArticleDetailView: View {
                 if case .loaded(let summary) = state.phase {
                     wikipediaButton(pageURL: summary.pageURL)
                     ShareLink(item: summary.pageURL) {
-                        Label("シェア", systemImage: "square.and.arrow.up")
+                        Label("Share", systemImage: "square.and.arrow.up")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.bordered)
@@ -119,12 +119,12 @@ struct ArticleDetailView: View {
             }
         case .failed(let message):
             VStack(alignment: .leading, spacing: 8) {
-                Text("要約を取得できませんでした")
+                Text("Failed to load summary")
                     .font(.headline)
                 Text(message)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Button("再試行") {
+                Button("Retry") {
                     Task { await state.load() }
                 }
                 .buttonStyle(.bordered)
@@ -139,18 +139,18 @@ struct ArticleDetailView: View {
             case .loading:
                 HStack(spacing: 8) {
                     ProgressView().scaleEffect(0.8)
-                    Text("翻訳中…")
+                    Text("Translating…")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 .padding(.top, 4)
             case .unsupported:
-                Text("この言語ペアは翻訳に対応していません")
+                Text("This language pair isn't supported")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.top, 4)
             case .failed(let message):
-                Text("翻訳に失敗しました: \(message)")
+                Text("Translation failed: \(message)")
                     .font(.caption)
                     .foregroundStyle(.red)
                     .padding(.top, 4)
@@ -166,7 +166,7 @@ struct ArticleDetailView: View {
                 openURL(url)
             }
         } label: {
-            Label("Webで検索", systemImage: "magnifyingglass")
+            Label("Search on the web", systemImage: "magnifyingglass")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.borderedProminent)
@@ -177,7 +177,7 @@ struct ArticleDetailView: View {
         Button {
             safariURL = SafariURL(url: pageURL)
         } label: {
-            Label("Wikipediaで読む", systemImage: "book")
+            Label("Read on Wikipedia", systemImage: "book")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.bordered)
