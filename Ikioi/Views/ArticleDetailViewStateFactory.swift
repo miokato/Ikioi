@@ -28,8 +28,16 @@ extension EnvironmentValues {
 @MainActor
 struct ArticleDetailViewStateFactory: ArticleDetailViewStateFactoryProtocol {
     let client: WikipediaAPIClient
+    let translator: any ArticleTranslatorProtocol
+    let userLanguage: Locale.Language
 
     func make(article: TrendArticle, country: Country) -> any ArticleDetailViewStateProtocol {
-        ArticleDetailViewState(article: article, country: country, client: client)
+        ArticleDetailViewState(
+            article: article,
+            country: country,
+            client: client,
+            translator: translator,
+            userLanguage: userLanguage
+        )
     }
 }

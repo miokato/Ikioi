@@ -1,9 +1,31 @@
 import SwiftUI
+import Translation
 
 struct ArticleDetailView: View {
     @Environment(\.articleDetailViewState) private var state
     @State private var safariURL: SafariURL?
     @Environment(\.openURL) private var openURL
+
+    private var displayedTitle: String {
+        if state.isTranslationEnabled, case .translated(let t) = state.translation {
+            return t.title
+        }
+        return state.article.title
+    }
+
+    private func displayedExtract(_ summary: ArticleSummary) -> String {
+        if state.isTranslationEnabled, case .translated(let t) = state.translation {
+            return t.extract
+        }
+        return summary.extract
+    }
+
+    private func displayedDescription(_ summary: ArticleSummary) -> String? {
+        if state.isTranslationEnabled, case .translated(let t) = state.translation {
+            return t.description
+        }
+        return summary.description
+    }
 
     var body: some View {
         ScrollView {
@@ -11,7 +33,7 @@ struct ArticleDetailView: View {
                 if case .loaded(let summary) = state.phase, let url = summary.thumbnailURL {
                     thumbnail(url)
                 }
-                Text(state.article.title)
+                Text(displayedTitle)
                     .font(.largeTitle.bold())
                     .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -32,16 +54,34 @@ struct ArticleDetailView: View {
             }
             .padding()
         }
-        .navigationTitle(state.article.title)
+        .navigationTitle(displayedTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if state.needsTranslation {
+                ToolbarItem(placement: .topBarTrailing) {
+                    translationToggle
+                }
+            }
+        }
         .task {
             if case .idle = state.phase {
                 await state.load()
             }
         }
+        .translationTask(state.translationConfig) { session in
+            await state.performTranslation(using: session)
+        }
         .sheet(item: $safariURL) { item in
             SafariView(url: item.url)
                 .ignoresSafeArea()
+        }
+    }
+
+    private var translationToggle: some View {
+        Button {
+            state.toggleTranslation()
+        } label: {
+            Image(systemName: state.isTranslationEnabled ? "character.bubble.fill" : "character.bubble")
         }
     }
 
@@ -68,13 +108,14 @@ struct ArticleDetailView: View {
                 .padding(.vertical, 24)
         case .loaded(let summary):
             VStack(alignment: .leading, spacing: 8) {
-                if let description = summary.description {
+                if let description = displayedDescription(summary) {
                     Text(description)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                Text(summary.extract)
+                Text(displayedExtract(summary))
                     .font(.body)
+                translationStatusIndicator
             }
         case .failed(let message):
             VStack(alignment: .leading, spacing: 8) {
@@ -87,6 +128,34 @@ struct ArticleDetailView: View {
                     Task { await state.load() }
                 }
                 .buttonStyle(.bordered)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var translationStatusIndicator: some View {
+        if state.isTranslationEnabled {
+            switch state.translation {
+            case .loading:
+                HStack(spacing: 8) {
+                    ProgressView().scaleEffect(0.8)
+                    Text("翻訳中…")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.top, 4)
+            case .unsupported:
+                Text("この言語ペアは翻訳に対応していません")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 4)
+            case .failed(let message):
+                Text("翻訳に失敗しました: \(message)")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .padding(.top, 4)
+            case .idle, .translated:
+                EmptyView()
             }
         }
     }

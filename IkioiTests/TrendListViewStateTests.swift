@@ -23,7 +23,9 @@ struct TrendListViewStateTests {
         let state = TrendListViewState(
             country: Self.japan,
             client: stub,
-            filter: ArticleFilter(blocklist: [:])
+            filter: ArticleFilter(blocklist: [:]),
+            translator: ArticleTranslatorStub(),
+            userLanguage: Locale.Language(identifier: "ja")
         )
         await state.load()
         guard case .loaded(let before) = state.phase else {
@@ -49,7 +51,9 @@ struct TrendListViewStateTests {
         let state = TrendListViewState(
             country: Self.japan,
             client: stub,
-            filter: ArticleFilter(blocklist: [:])
+            filter: ArticleFilter(blocklist: [:]),
+            translator: ArticleTranslatorStub(),
+            userLanguage: Locale.Language(identifier: "ja")
         )
         await state.load()
         let countBefore = stub.fetchCount
@@ -65,7 +69,9 @@ struct TrendListViewStateTests {
         let state = TrendListViewState(
             country: Self.japan,
             client: stub,
-            filter: ArticleFilter(blocklist: [:])
+            filter: ArticleFilter(blocklist: [:]),
+            translator: ArticleTranslatorStub(),
+            userLanguage: Locale.Language(identifier: "ja")
         )
         await state.setCountry(Self.france)
         if case .failed = state.phase {
@@ -73,6 +79,101 @@ struct TrendListViewStateTests {
         } else {
             Issue.record("expected .failed, got \(state.phase)")
         }
+    }
+
+    @Test func needsTranslationIsFalseForSameLanguage() {
+        let state = TrendListViewState(
+            country: Self.japan,
+            client: MultiProjectStubClient(),
+            filter: ArticleFilter(blocklist: [:]),
+            translator: ArticleTranslatorStub(),
+            userLanguage: Locale.Language(identifier: "ja")
+        )
+        #expect(state.needsTranslation == false)
+    }
+
+    @Test func needsTranslationIsTrueForDifferentLanguage() {
+        let state = TrendListViewState(
+            country: Self.japan,
+            client: MultiProjectStubClient(),
+            filter: ArticleFilter(blocklist: [:]),
+            translator: ArticleTranslatorStub(),
+            userLanguage: Locale.Language(identifier: "en")
+        )
+        #expect(state.needsTranslation == true)
+    }
+
+    @Test func translationConfigIsNilWhenSameLanguage() async {
+        let stub = MultiProjectStubClient(
+            trendingByProject: ["ja.wikipedia.org": [TrendArticle(id: "X", rank: 1, title: "X", rawTitle: "X", viewCount: 1)]]
+        )
+        let state = TrendListViewState(
+            country: Self.japan,
+            client: stub,
+            filter: ArticleFilter(blocklist: [:]),
+            translator: ArticleTranslatorStub(),
+            userLanguage: Locale.Language(identifier: "ja")
+        )
+        await state.load()
+        #expect(state.translationConfig == nil)
+    }
+
+    @Test func translationConfigIsNonNilWhenDifferentLanguage() async {
+        let stub = MultiProjectStubClient(
+            trendingByProject: ["ja.wikipedia.org": [TrendArticle(id: "X", rank: 1, title: "X", rawTitle: "X", viewCount: 1)]]
+        )
+        let state = TrendListViewState(
+            country: Self.japan,
+            client: stub,
+            filter: ArticleFilter(blocklist: [:]),
+            translator: ArticleTranslatorStub(),
+            userLanguage: Locale.Language(identifier: "en")
+        )
+        await state.load()
+        #expect(state.translationConfig != nil)
+    }
+
+    @Test func toggleTranslationDisablesAndClears() async {
+        let stub = MultiProjectStubClient(
+            trendingByProject: ["ja.wikipedia.org": [TrendArticle(id: "X", rank: 1, title: "X", rawTitle: "X", viewCount: 1)]]
+        )
+        let state = TrendListViewState(
+            country: Self.japan,
+            client: stub,
+            filter: ArticleFilter(blocklist: [:]),
+            translator: ArticleTranslatorStub(),
+            userLanguage: Locale.Language(identifier: "en")
+        )
+        await state.load()
+        state.translatedTitles = ["X": "T:X"]
+        #expect(state.isTranslationEnabled == true)
+        #expect(state.translationConfig != nil)
+
+        state.toggleTranslation()
+
+        #expect(state.isTranslationEnabled == false)
+        #expect(state.translationConfig == nil)
+        #expect(state.translatedTitles.isEmpty)
+    }
+
+    @Test func displayTitleReturnsTranslatedWhenEnabled() async {
+        let article = TrendArticle(id: "X", rank: 1, title: "X", rawTitle: "X", viewCount: 1)
+        let stub = MultiProjectStubClient(
+            trendingByProject: ["ja.wikipedia.org": [article]]
+        )
+        let state = TrendListViewState(
+            country: Self.japan,
+            client: stub,
+            filter: ArticleFilter(blocklist: [:]),
+            translator: ArticleTranslatorStub(),
+            userLanguage: Locale.Language(identifier: "en")
+        )
+        await state.load()
+        state.translatedTitles = ["X": "translated"]
+        #expect(state.displayTitle(for: article) == "translated")
+
+        state.toggleTranslation()
+        #expect(state.displayTitle(for: article) == "X")
     }
 }
 

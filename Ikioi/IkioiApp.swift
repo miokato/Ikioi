@@ -17,6 +17,8 @@ struct IkioiApp: App {
         let countries = (try? Country.loadFromBundle()) ?? []
         let filter = (try? ArticleFilter.loadFromBundle()) ?? ArticleFilter(blocklist: [:])
         let client = LiveWikipediaAPIClient()
+        let translator = LiveArticleTranslator()
+        let userLanguage = Locale.userPreferredLanguage
         let storage = UserDefaultsCountryPreferenceStorage()
         let store = CountryStore(
             all: countries,
@@ -28,9 +30,15 @@ struct IkioiApp: App {
         _rootState = State(initialValue: TrendListViewState(
             country: store.selected,
             client: client,
-            filter: filter
+            filter: filter,
+            translator: translator,
+            userLanguage: userLanguage
         ))
-        _detailFactory = State(initialValue: ArticleDetailViewStateFactory(client: client))
+        _detailFactory = State(initialValue: ArticleDetailViewStateFactory(
+            client: client,
+            translator: translator,
+            userLanguage: userLanguage
+        ))
     }
 
     var body: some Scene {

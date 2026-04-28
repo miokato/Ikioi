@@ -2,6 +2,7 @@ import Foundation
 import Testing
 @testable import Ikioi
 
+@MainActor
 struct ArticleDetailViewStateTests {
     private static let testCountry = Country(
         id: "JP",
@@ -27,10 +28,23 @@ struct ArticleDetailViewStateTests {
         description: "説明"
     )
 
-    @Test @MainActor func loadSuccessUpdatesPhaseToLoaded() async {
-        let state = ArticleDetailViewState(
-            article: Self.testArticle,
-            country: Self.testCountry,
+    private static func makeState(
+        article: TrendArticle = ArticleDetailViewStateTests.testArticle,
+        country: Country = ArticleDetailViewStateTests.testCountry,
+        client: WikipediaAPIClient,
+        userLanguage: Locale.Language = Locale.Language(identifier: "ja")
+    ) -> ArticleDetailViewState {
+        ArticleDetailViewState(
+            article: article,
+            country: country,
+            client: client,
+            translator: ArticleTranslatorStub(),
+            userLanguage: userLanguage
+        )
+    }
+
+    @Test func loadSuccessUpdatesPhaseToLoaded() async {
+        let state = Self.makeState(
             client: StubWikipediaAPIClient(summaryResult: .success(Self.testSummary))
         )
         await state.load()
@@ -42,10 +56,8 @@ struct ArticleDetailViewStateTests {
         #expect(summary.description == "説明")
     }
 
-    @Test @MainActor func loadFailureUpdatesPhaseToFailed() async {
-        let state = ArticleDetailViewState(
-            article: Self.testArticle,
-            country: Self.testCountry,
+    @Test func loadFailureUpdatesPhaseToFailed() async {
+        let state = Self.makeState(
             client: StubWikipediaAPIClient(summaryResult: .failure(.httpError(503)))
         )
         await state.load()
@@ -56,10 +68,8 @@ struct ArticleDetailViewStateTests {
         }
     }
 
-    @Test @MainActor func loadStartsAsLoadingThenSettles() async {
-        let state = ArticleDetailViewState(
-            article: Self.testArticle,
-            country: Self.testCountry,
+    @Test func loadStartsAsLoadingThenSettles() async {
+        let state = Self.makeState(
             client: StubWikipediaAPIClient(summaryResult: .success(Self.testSummary))
         )
         if case .idle = state.phase {
@@ -75,8 +85,8 @@ struct ArticleDetailViewStateTests {
         }
     }
 
-    @Test @MainActor func webSearchURLEncodesTitleSpaces() {
-        let state = ArticleDetailViewState(
+    @Test func webSearchURLEncodesTitleSpaces() {
+        let state = Self.makeState(
             article: TrendArticle(
                 id: "Albert_Einstein",
                 rank: 1,
@@ -84,11 +94,69 @@ struct ArticleDetailViewStateTests {
                 rawTitle: "Albert_Einstein",
                 viewCount: 100
             ),
-            country: Self.testCountry,
             client: StubWikipediaAPIClient()
         )
         let url = state.webSearchURL()
         #expect(url?.absoluteString == "https://www.google.com/search?q=Albert%20Einstein")
+    }
+
+    @Test func needsTranslationIsFalseForSameLanguage() {
+        let state = Self.makeState(
+            client: StubWikipediaAPIClient(),
+            userLanguage: Locale.Language(identifier: "ja")
+        )
+        #expect(state.needsTranslation == false)
+    }
+
+    @Test func needsTranslationIsTrueForDifferentLanguage() {
+        let state = Self.makeState(
+            client: StubWikipediaAPIClient(),
+            userLanguage: Locale.Language(identifier: "en")
+        )
+        #expect(state.needsTranslation == true)
+    }
+
+    @Test func loadSetsTranslationConfigOnDifferentLanguage() async {
+        let state = Self.makeState(
+            client: StubWikipediaAPIClient(summaryResult: .success(Self.testSummary)),
+            userLanguage: Locale.Language(identifier: "en")
+        )
+        await state.load()
+        #expect(state.translationConfig != nil)
+        if case .loading = state.translation {
+            // expected (waiting for translation task)
+        } else {
+            Issue.record("expected translation phase to be .loading after load, got \(state.translation)")
+        }
+    }
+
+    @Test func loadKeepsTranslationConfigNilOnSameLanguage() async {
+        let state = Self.makeState(
+            client: StubWikipediaAPIClient(summaryResult: .success(Self.testSummary)),
+            userLanguage: Locale.Language(identifier: "ja")
+        )
+        await state.load()
+        #expect(state.translationConfig == nil)
+    }
+
+    @Test func toggleTranslationDisablesAndResets() async {
+        let state = Self.makeState(
+            client: StubWikipediaAPIClient(summaryResult: .success(Self.testSummary)),
+            userLanguage: Locale.Language(identifier: "en")
+        )
+        await state.load()
+        state.translation = .translated(TranslatedArticle(title: "T", extract: "E", description: nil))
+        #expect(state.isTranslationEnabled == true)
+
+        state.toggleTranslation()
+
+        #expect(state.isTranslationEnabled == false)
+        #expect(state.translationConfig == nil)
+        if case .idle = state.translation {
+            // expected
+        } else {
+            Issue.record("expected .idle after toggle off, got \(state.translation)")
+        }
     }
 }
 

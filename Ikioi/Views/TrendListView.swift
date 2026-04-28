@@ -1,4 +1,5 @@
 import SwiftUI
+import Translation
 
 struct TrendListView: View {
     @Environment(\.trendListViewState) private var state
@@ -12,6 +13,11 @@ struct TrendListView: View {
             content
                 .navigationTitle("\(state.country.flagEmoji) \(state.country.id)")
                 .toolbar {
+                    if state.needsTranslation {
+                        ToolbarItem(placement: .topBarLeading) {
+                            translationToggle
+                        }
+                    }
                     ToolbarItem(placement: .topBarTrailing) {
                         countryMenu
                     }
@@ -23,6 +29,9 @@ struct TrendListView: View {
                 }
                 .refreshable {
                     await state.load()
+                }
+                .translationTask(state.translationConfig) { session in
+                    await state.applyTranslation(using: session)
                 }
                 .onChange(of: countryStore.selected) { _, newCountry in
                     Task {
@@ -51,6 +60,14 @@ struct TrendListView: View {
                         country: state.country
                     )
                 }
+        }
+    }
+
+    private var translationToggle: some View {
+        Button {
+            state.toggleTranslation()
+        } label: {
+            Image(systemName: state.isTranslationEnabled ? "character.bubble.fill" : "character.bubble")
         }
     }
 
@@ -117,7 +134,7 @@ struct TrendListView: View {
                 .frame(width: 36, alignment: .center)
                 .foregroundStyle(article.rank <= 3 ? Color.orange : Color.secondary)
             VStack(alignment: .leading, spacing: 4) {
-                Text(article.title)
+                Text(state.displayTitle(for: article))
                     .font(.body.weight(.semibold))
                     .lineLimit(2)
                 Text("\(article.viewCount.formatted()) views")
