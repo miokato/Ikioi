@@ -1,9 +1,30 @@
-import Foundation
+import SwiftUI
 import Observation
+
+protocol TrendListViewStateProtocol {
+    
+}
+
+@MainActor
+final class TrendListViewStateMock: TrendListViewStateProtocol {
+    
+}
+
+@MainActor
+struct TrendListViewStateKey: @preconcurrency EnvironmentKey {
+    static let defaultValue: TrendListViewStateProtocol = TrendListViewStateMock()
+}
+
+extension EnvironmentValues {
+    var trendListViewState: TrendListViewStateProtocol {
+        get { self[TrendListViewStateKey.self] }
+        set { self[TrendListViewStateKey.self] = newValue }
+    }
+}
 
 @MainActor
 @Observable
-final class TrendListViewState {
+final class TrendListViewState: TrendListViewStateProtocol {
     enum Phase {
         case idle
         case loading
