@@ -16,8 +16,17 @@
 
 ## アーキテクチャ
 - MVVMで責務を分ける
-- プレゼンテーションロジックはSomethingViewStateに記述する
-- 画面はSomethingViewに記述する
-- 画面を越えて状態を保持する場合はObservationを利用し、SomethingStoreに記述する
-- ビジネスロジックはSomethingServiceに記述し、状態を持たない
-- Observationを利用するときはProtocolを利用してDIで差し込めるように実装する
+- プレゼンテーションロジックはxxxViewStateに記述する
+- 画面はxxxViewに記述する
+- 画面を越えて状態を保持する場合はObservationを利用し、xxxStoreに記述する
+- ビジネスロジックはxxxServiceに記述し、状態を持たない
+- xxxStateやxxxStoreクラスはObservation,Environment,Protocol,KeyPathを利用してDIで差し込む
+
+## テスト
+テストは以下のコマンドで実行する
+```
+xcodebuild test -scheme "Ikioi" -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest"
+```
+- Testingフレームワークを利用する
+- ビジネスロジックはテストしてから実装する
+

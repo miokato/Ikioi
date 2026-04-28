@@ -20,13 +20,6 @@
 			remoteGlobalIDString = 95B37D332F9EE22000832213;
 			remoteInfo = Ikioi;
 		};
-		95B37D4C2F9EE22100832213 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 95B37D2C2F9EE22000832213 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 95B37D332F9EE22000832213;
-			remoteInfo = Ikioi;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -35,7 +28,6 @@
 		3571506A2F9F578F00AF6717 /* PLAN.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PLAN.md; sourceTree = "<group>"; };
 		95B37D342F9EE22000832213 /* Ikioi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ikioi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		95B37D412F9EE22100832213 /* IkioiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IkioiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		95B37D4B2F9EE22100832213 /* IkioiUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IkioiUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -47,11 +39,6 @@
 		95B37D442F9EE22100832213 /* IkioiTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = IkioiTests;
-			sourceTree = "<group>";
-		};
-		95B37D4E2F9EE22100832213 /* IkioiUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = IkioiUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -71,13 +58,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		95B37D482F9EE22100832213 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -86,7 +66,6 @@
 			children = (
 				95B37D362F9EE22000832213 /* Ikioi */,
 				95B37D442F9EE22100832213 /* IkioiTests */,
-				95B37D4E2F9EE22100832213 /* IkioiUITests */,
 				95B37D352F9EE22000832213 /* Products */,
 				356F52B92F9F4872003FC2C0 /* CLAUDE.md */,
 				356F52BB2F9F487A003FC2C0 /* README.md */,
@@ -99,7 +78,6 @@
 			children = (
 				95B37D342F9EE22000832213 /* Ikioi.app */,
 				95B37D412F9EE22100832213 /* IkioiTests.xctest */,
-				95B37D4B2F9EE22100832213 /* IkioiUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -152,29 +130,6 @@
 			productReference = 95B37D412F9EE22100832213 /* IkioiTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		95B37D4A2F9EE22100832213 /* IkioiUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 95B37D5B2F9EE22100832213 /* Build configuration list for PBXNativeTarget "IkioiUITests" */;
-			buildPhases = (
-				95B37D472F9EE22100832213 /* Sources */,
-				95B37D482F9EE22100832213 /* Frameworks */,
-				95B37D492F9EE22100832213 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				95B37D4D2F9EE22100832213 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				95B37D4E2F9EE22100832213 /* IkioiUITests */,
-			);
-			name = IkioiUITests;
-			packageProductDependencies = (
-			);
-			productName = IkioiUITests;
-			productReference = 95B37D4B2F9EE22100832213 /* IkioiUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -189,10 +144,6 @@
 						CreatedOnToolsVersion = 26.4;
 					};
 					95B37D402F9EE22100832213 = {
-						CreatedOnToolsVersion = 26.4;
-						TestTargetID = 95B37D332F9EE22000832213;
-					};
-					95B37D4A2F9EE22100832213 = {
 						CreatedOnToolsVersion = 26.4;
 						TestTargetID = 95B37D332F9EE22000832213;
 					};
@@ -214,7 +165,6 @@
 			targets = (
 				95B37D332F9EE22000832213 /* Ikioi */,
 				95B37D402F9EE22100832213 /* IkioiTests */,
-				95B37D4A2F9EE22100832213 /* IkioiUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -231,13 +181,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		95B37D3F2F9EE22100832213 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		95B37D492F9EE22100832213 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -261,13 +204,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		95B37D472F9EE22100832213 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -275,11 +211,6 @@
 			isa = PBXTargetDependency;
 			target = 95B37D332F9EE22000832213 /* Ikioi */;
 			targetProxy = 95B37D422F9EE22100832213 /* PBXContainerItemProxy */;
-		};
-		95B37D4D2F9EE22100832213 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 95B37D332F9EE22000832213 /* Ikioi */;
-			targetProxy = 95B37D4C2F9EE22100832213 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -513,46 +444,6 @@
 			};
 			name = Release;
 		};
-		95B37D5C2F9EE22100832213 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6G9A5395V2;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = jp.utomica.IkioiUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Ikioi;
-			};
-			name = Debug;
-		};
-		95B37D5D2F9EE22100832213 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6G9A5395V2;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = jp.utomica.IkioiUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Ikioi;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -579,15 +470,6 @@
 			buildConfigurations = (
 				95B37D592F9EE22100832213 /* Debug */,
 				95B37D5A2F9EE22100832213 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		95B37D5B2F9EE22100832213 /* Build configuration list for PBXNativeTarget "IkioiUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				95B37D5C2F9EE22100832213 /* Debug */,
-				95B37D5D2F9EE22100832213 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
