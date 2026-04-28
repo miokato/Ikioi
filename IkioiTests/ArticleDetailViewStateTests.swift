@@ -139,23 +139,30 @@ struct ArticleDetailViewStateTests {
         #expect(state.translationConfig == nil)
     }
 
-    @Test func toggleTranslationDisablesAndResets() async {
+    @Test func toggleTranslationKeepsCacheWhenDisabled() async {
         let state = Self.makeState(
             client: StubWikipediaAPIClient(summaryResult: .success(Self.testSummary)),
             userLanguage: Locale.Language(identifier: "en")
         )
         await state.load()
-        state.translation = .translated(TranslatedArticle(title: "T", extract: "E", description: nil))
+        let cached = TranslatedArticle(title: "T", extract: "E", description: nil)
+        state.translation = .translated(cached)
         #expect(state.isTranslationEnabled == true)
 
         state.toggleTranslation()
-
         #expect(state.isTranslationEnabled == false)
-        #expect(state.translationConfig == nil)
-        if case .idle = state.translation {
-            // expected
+        if case .translated(let value) = state.translation {
+            #expect(value == cached)
         } else {
-            Issue.record("expected .idle after toggle off, got \(state.translation)")
+            Issue.record("expected cached translation to be kept, got \(state.translation)")
+        }
+
+        state.toggleTranslation()
+        #expect(state.isTranslationEnabled == true)
+        if case .translated(let value) = state.translation {
+            #expect(value == cached)
+        } else {
+            Issue.record("expected cached translation to be restored, got \(state.translation)")
         }
     }
 }

@@ -142,12 +142,6 @@ final class ArticleDetailViewState: ArticleDetailViewStateProtocol {
 
     func toggleTranslation() {
         isTranslationEnabled.toggle()
-        if isTranslationEnabled {
-            updateTranslationConfig()
-        } else {
-            translation = .idle
-            translationConfig = nil
-        }
     }
 
     func webSearchURL() -> URL? {

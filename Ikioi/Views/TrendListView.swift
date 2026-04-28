@@ -65,7 +65,7 @@ struct TrendListView: View {
 
     @ViewBuilder
     private var translationToggle: some View {
-        if state.isTranslating {
+        if state.isTranslating && state.isTranslationEnabled {
             ProgressView()
                 .controlSize(.small)
         } else {

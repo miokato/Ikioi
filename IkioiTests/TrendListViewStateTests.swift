@@ -133,7 +133,7 @@ struct TrendListViewStateTests {
         #expect(state.translationConfig != nil)
     }
 
-    @Test func toggleTranslationDisablesAndClears() async {
+    @Test func toggleTranslationKeepsCacheWhenDisabled() async {
         let stub = MultiProjectStubClient(
             trendingByProject: ["ja.wikipedia.org": [TrendArticle(id: "X", rank: 1, title: "X", rawTitle: "X", viewCount: 1)]]
         )
@@ -147,13 +147,14 @@ struct TrendListViewStateTests {
         await state.load()
         state.translatedTitles = ["X": "T:X"]
         #expect(state.isTranslationEnabled == true)
-        #expect(state.translationConfig != nil)
 
         state.toggleTranslation()
-
         #expect(state.isTranslationEnabled == false)
-        #expect(state.translationConfig == nil)
-        #expect(state.translatedTitles.isEmpty)
+        #expect(state.translatedTitles["X"] == "T:X")
+
+        state.toggleTranslation()
+        #expect(state.isTranslationEnabled == true)
+        #expect(state.translatedTitles["X"] == "T:X")
     }
 
     @Test func displayTitleReturnsTranslatedWhenEnabled() async {

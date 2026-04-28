@@ -160,13 +160,6 @@ final class TrendListViewState: TrendListViewStateProtocol {
 
     func toggleTranslation() {
         isTranslationEnabled.toggle()
-        if isTranslationEnabled {
-            updateTranslationConfig()
-        } else {
-            translationConfig = nil
-            translatedTitles = [:]
-            isTranslating = false
-        }
     }
 
     func applyTranslation(using session: TranslationSession) async {
