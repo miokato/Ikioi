@@ -63,11 +63,17 @@ struct TrendListView: View {
         }
     }
 
+    @ViewBuilder
     private var translationToggle: some View {
-        Button {
-            state.toggleTranslation()
-        } label: {
-            Image(systemName: state.isTranslationEnabled ? "character.bubble.fill" : "character.bubble")
+        if state.isTranslating {
+            ProgressView()
+                .controlSize(.small)
+        } else {
+            Button {
+                state.toggleTranslation()
+            } label: {
+                Image(systemName: state.isTranslationEnabled ? "character.bubble.fill" : "character.bubble")
+            }
         }
     }
 

@@ -16,6 +16,7 @@ protocol TrendListViewStateProtocol: AnyObject, Observable {
     var country: Country { get }
     var translatedTitles: [String: String] { get }
     var isTranslationEnabled: Bool { get }
+    var isTranslating: Bool { get }
     var translationConfig: TranslationSession.Configuration? { get }
     var needsTranslation: Bool { get }
     func load() async
@@ -32,6 +33,7 @@ final class TrendListViewStateMock: TrendListViewStateProtocol {
     var country: Country
     var translatedTitles: [String: String]
     var isTranslationEnabled: Bool
+    var isTranslating: Bool
     var translationConfig: TranslationSession.Configuration?
     var needsTranslation: Bool
 
@@ -40,12 +42,14 @@ final class TrendListViewStateMock: TrendListViewStateProtocol {
         country: Country = .fallbackJapan,
         translatedTitles: [String: String] = [:],
         isTranslationEnabled: Bool = false,
+        isTranslating: Bool = false,
         needsTranslation: Bool = false
     ) {
         self.phase = phase
         self.country = country
         self.translatedTitles = translatedTitles
         self.isTranslationEnabled = isTranslationEnabled
+        self.isTranslating = isTranslating
         self.needsTranslation = needsTranslation
     }
 
@@ -90,6 +94,7 @@ final class TrendListViewState: TrendListViewStateProtocol {
     private(set) var country: Country
     var translatedTitles: [String: String] = [:]
     private(set) var isTranslationEnabled: Bool = true
+    private(set) var isTranslating: Bool = false
     private(set) var translationConfig: TranslationSession.Configuration?
 
     private let client: WikipediaAPIClient
@@ -160,12 +165,15 @@ final class TrendListViewState: TrendListViewStateProtocol {
         } else {
             translationConfig = nil
             translatedTitles = [:]
+            isTranslating = false
         }
     }
 
     func applyTranslation(using session: TranslationSession) async {
         guard case .loaded(let articles) = phase else { return }
         let titlesByID = articles.map { (id: $0.id, title: $0.title) }
+        isTranslating = true
+        defer { isTranslating = false }
         do {
             let result = try await translator.translateTitles(titlesByID, using: session)
             translatedTitles = result
