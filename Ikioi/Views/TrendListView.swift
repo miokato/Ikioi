@@ -3,11 +3,19 @@ import SwiftUI
 struct TrendListView: View {
     @Environment(\.trendListViewState) private var state
     @Environment(\.articleDetailViewStateFactory) private var detailFactory
+    @Environment(\.countryStore) private var countryStore
+
+    @State private var switchErrorMessage: String?
 
     var body: some View {
         NavigationStack {
             content
                 .navigationTitle("\(state.country.flagEmoji) \(state.country.id)")
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        countryMenu
+                    }
+                }
                 .task {
                     if case .idle = state.phase {
                         await state.load()
@@ -16,6 +24,26 @@ struct TrendListView: View {
                 .refreshable {
                     await state.load()
                 }
+                .onChange(of: countryStore.selected) { _, newCountry in
+                    Task {
+                        await state.setCountry(newCountry)
+                        if case .failed(let message) = state.phase {
+                            switchErrorMessage = message
+                        }
+                    }
+                }
+                .alert(
+                    "読み込みに失敗しました",
+                    isPresented: Binding(
+                        get: { switchErrorMessage != nil },
+                        set: { if !$0 { switchErrorMessage = nil } }
+                    ),
+                    presenting: switchErrorMessage
+                ) { _ in
+                    Button("OK", role: .cancel) {}
+                } message: { message in
+                    Text(message)
+                }
                 .navigationDestination(for: TrendArticle.self) { article in
                     ArticleDetailViewContainer(
                         factory: detailFactory,
@@ -23,6 +51,26 @@ struct TrendListView: View {
                         country: state.country
                     )
                 }
+        }
+    }
+
+    private var countryMenu: some View {
+        Menu {
+            Picker(
+                "国を選択",
+                selection: Binding(
+                    get: { countryStore.selected },
+                    set: { countryStore.select($0) }
+                )
+            ) {
+                ForEach(countryStore.all) { country in
+                    Text("\(country.flagEmoji) \(country.id)")
+                        .tag(country)
+                }
+            }
+        } label: {
+            Text(countryStore.selected.flagEmoji)
+                .font(.title2)
         }
     }
 
@@ -102,4 +150,8 @@ private struct ArticleDetailViewContainer: View {
     TrendListView()
         .environment(\.trendListViewState, TrendListViewStateMock())
         .environment(\.articleDetailViewStateFactory, ArticleDetailViewStateFactoryMock())
+        .environment(\.countryStore, CountryStoreMock(
+            all: [.fallbackJapan],
+            selected: .fallbackJapan
+        ))
 }

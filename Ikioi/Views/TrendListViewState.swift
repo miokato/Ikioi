@@ -14,13 +14,14 @@ protocol TrendListViewStateProtocol: AnyObject, Observable {
     var phase: TrendListPhase { get }
     var country: Country { get }
     func load() async
+    func setCountry(_ country: Country) async
 }
 
 @MainActor
 @Observable
 final class TrendListViewStateMock: TrendListViewStateProtocol {
     var phase: TrendListPhase
-    let country: Country
+    var country: Country
 
     init(
         phase: TrendListPhase = .loaded(PreviewWikipediaAPIClient.defaultTrending),
@@ -31,6 +32,12 @@ final class TrendListViewStateMock: TrendListViewStateProtocol {
     }
 
     func load() async {}
+
+    func setCountry(_ country: Country) async {
+        guard country.id != self.country.id else { return }
+        self.country = country
+        await load()
+    }
 }
 
 @MainActor
@@ -49,7 +56,7 @@ extension EnvironmentValues {
 @Observable
 final class TrendListViewState: TrendListViewStateProtocol {
     private(set) var phase: TrendListPhase = .idle
-    let country: Country
+    private(set) var country: Country
 
     private let client: WikipediaAPIClient
     private let filter: ArticleFilter
@@ -90,5 +97,11 @@ final class TrendListViewState: TrendListViewStateProtocol {
 
     func load() async {
         await load(now: .now)
+    }
+
+    func setCountry(_ country: Country) async {
+        guard country.id != self.country.id else { return }
+        self.country = country
+        await load()
     }
 }
